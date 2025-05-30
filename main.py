@@ -11,6 +11,10 @@ from langchain.agents import AgentExecutor
 from langchain_cohere.react_multi_hop.agent import create_cohere_react_agent
 from langchain_core.prompts import ChatPromptTemplate
 import numexpr
+from RestrictedPython import compile_restricted, safe_globals, limited_builtins, utility_builtins
+import math
+import numpy
+import matplotlib.pyplot
 
 print("Current working directory:", os.getcwd())
 
@@ -31,12 +35,45 @@ class TavilySearchInput(BaseModel):
 
 internet_search.args_schema = TavilySearchInput
 
+# Secure Python REPL Tool
+class SecurePythonREPL:
+    def run(self, code: str) -> str:
+        """Execute Python code in a restricted environment."""
+        try:
+            # Define safe globals
+            safe_globals_dict = safe_globals.copy()
+            safe_globals_dict.update({
+                '__builtins__': limited_builtins,
+                'math': math,
+                'numpy': numpy,
+                'plt': matplotlib.pyplot, # Allow Matplotlib for visualizations
+            })
+
+            # Compile code in restricted mode
+            compiled_code = compile_restricted(
+                code,
+                '<string>',
+                'exec',
+            )
+
+            # Execute in restricted environment
+            result = []
+            def capture_print(*args):
+                result.append(' '.join(str(arg) for arg in args))
+
+            safe_globals_dict['_print_'] = capture_print
+            exec(compiled_code, safe_globals_dict)
+
+            # Return captured output or variable results
+            return '\n'.join(str(x) for x in result) if result else "Code executed successfully."
+        except Exception as e:
+            return f"Error executing code: {str(e)}"
 
 # Python REPL Tool
-python_repl = PythonREPL()
+python_repl = SecurePythonREPL()
 repl_tool = Tool(
     name="python_repl",
-    description="Executes python code and returns the result.",
+    description="Executes python code in a secure environment. Supports math, numpy, and matplotlib.pyplot (as plt). UNsafe modules like os, sys, and subprocess are blocked for now.",
     func=python_repl.run,
 )
 
@@ -85,11 +122,11 @@ class FileToolInput(BaseModel):
     file_path: str = Field(description="Path to the file.")
     content: str = Field(default="", description="Content to write to the file (if operation is 'write').")
 
-def file_tool_func(input: FileToolInput):
+def file_tool_func(operation: str, file_path: str, content: str = ""):
     if input.operation == "read":
         return file_handler.read_file(input.file_path)
     elif input.operation == "write":
-        return file_handler.write_file(input.file_path, input.content)
+        return file_handler.write_file(input.file_path, content)
     else: 
         return "Invalid operation. Use 'read' or 'write'."
 
@@ -158,5 +195,5 @@ agent = create_cohere_react_agent(
 agent_executor = AgentExecutor(agent=agent, tools=[internet_search, repl_tool, file_tool, wikipedia_tool, math_tool], verbose=True)
 
 response = agent_executor.invoke({
-    "input": "Search Wikipedia for the history of Python programming, calculate 2^10, and save the Wikipedia summary to a file named 'python_history.txt'.",
+    "input": "What is the '^' in 2^10?",
 })
