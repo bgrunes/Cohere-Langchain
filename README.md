@@ -50,25 +50,29 @@ conda env config vars set TAVILY_API_KEY=your_tavily_key
 
 ## Usage
 
-Run the Agent:Save the main script as chatbot_app.py and execute:
-python chatbot_app.py
+Run the Agent:Save the main script as main.py and execute:
+python main.py
 
 
-@@ Example Queries:
-
+## Example Queries:
+```
 Mathematical Calculation:response = agent_executor.invoke({"input": "Calculate 2^10"})
+```
 Expected output: "1024"
 
-
+```
 Wikipedia Search:response = agent_executor.invoke({"input": "Search Wikipedia for the history of Python programming"})
+```
 Returns a summary of Python's history
 
-
+```
 Python Visualization:response = agent_executor.invoke({"input": "Create a pie chart of data [1, 2, 3, 4] using matplotlib"})
+```
 Saves chart to 'output/plot.png'
 
-
+```
 File Operation:response = agent_executor.invoke({"input": "Save 'Hello' to 'test.txt'"})
+```
 Saves to 'output/test.txt'
 
 
@@ -82,7 +86,7 @@ Saves to 'output/test.txt'
 
 ## Project Structure
 
-**chatbot_app.py**: Main script containing the agent and tool definitions.
+**main.py**: Main script containing the agent and tool definitions.
 **output/**: Directory for file outputs (e.g., charts, text files).
 
 ## Limitations
