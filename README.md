@@ -4,11 +4,17 @@ This project is a versatile chatbot agent built with LangChain, powered by Coher
 ## Features
 
 **Internet Search**: Uses Tavily to fetch relevant web content for up-to-date information.
+
 **Secure Python Execution**: Executes Python code in a sandboxed environment using restrictedpython, supporting math, numpy, and matplotlib.pyplot for safe computations and visualizations.
+
 **File Handling**: Reads and writes files (e.g., text, CSV) in a secure output directory.
+
 **Wikipedia Search**: Queries Wikipedia for reliable, structured information.
+
 **Math Calculations**: Evaluates mathematical expressions safely using numexpr.
+
 **Modular Design**: Built with LangChain's ReAct framework for multi-step reasoning and tool selection.
+
 
 ## Prerequisites
 
